@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Crypto App{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="welcome-section fade-in-up">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="welcome-title">Selamat Datang, {{ session.username }}! 👋</h1>
+                    <p class="welcome-subtitle">Kelola keamanan data Anda dengan alat kriptografi terbaik</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row mb-5">
+    <div class="col-12">
+        <h2 class="h4 mb-4 text-white">Fitur Utama</h2>
+    </div>
+    
+    <!-- Feature Box 1: Enkripsi Teks Super -->
+    <div class="col-lg-4 col-md-6 mb-4">
+        <a href="{{ url_for('text_encryption') }}" class="feature-box fade-in-up" style="animation-delay: 0.1s">
+            <div class="feature-icon">
+                <i class="fas fa-lock"></i>
+            </div>
+            <div class="feature-title">Enkripsi Teks Super</div>
+            <div class="feature-description">
+                Enkripsi dan dekripsi pesan teks dengan tiga lapis keamanan: Caesar Cipher, Vigenere Cipher, dan AES-256 untuk perlindungan maksimal.
+            </div>
+            <div class="feature-badges">
+                <span class="badge bg-primary me-1">Caesar</span>
+                <span class="badge bg-success me-1">Vigenere</span>
+                <span class="badge bg-danger">AES-256</span>
+            </div>
+            <div class="mt-3">
+                <button class="btn btn-primary w-100">
+                    <i class="fas fa-arrow-right me-2"></i>
+                    Gunakan Sekarang
+                </button>
+            </div>
+        </a>
+    </div>
+    
+    <!-- Feature Box 2: Steganografi Gambar -->
+    <div class="col-lg-4 col-md-6 mb-4">
+        <a href="{{ url_for('image_steganography') }}" class="feature-box fade-in-up" style="animation-delay: 0.2s">
+            <div class="feature-icon">
+                <i class="fas fa-eye-slash"></i>
+            </div>
+            <div class="feature-title">Steganografi Gambar</div>
+            <div class="feature-description">
+                Sembunyikan pesan rahasia dalam gambar menggunakan teknik LSB dan EOF.
+            </div>
+            <div class="feature-badges">
+                <span class="badge bg-warning me-1">LSB</span>
+                <span class="badge bg-danger me-2">EOF</span>
+                <span class="badge bg-info">PNG/JPG</span>
+            </div>
+            <div class="mt-3">
+                <button class="btn btn-success w-100">
+                    <i class="fas fa-arrow-right me-2"></i>
+                    Gunakan Sekarang
+                </button>
+            </div>
+        </a>
+    </div>
+    
+    <!-- Feature Box 3: Enkripsi File RSA -->
+    <div class="col-lg-4 col-md-6 mb-4">
+        <a href="{{ url_for('file_encryption') }}" class="feature-box fade-in-up" style="animation-delay: 0.3s">
+            <div class="feature-icon">
+                <i class="fas fa-file me-1"></i>
+            </div>
+            <div class="feature-title">Enkripsi File RSA</div>
+            <div class="feature-description">
+                Enkripsi dan dekripsi file dokumen dengan algoritma RSA asimetris. Aman untuk file PDF, DOCX, dan format dokumen lainnya.
+            </div>
+            <div class="feature-badges">
+                <span class="badge bg-danger me-1">RSA</span>
+                <span class="badge bg-success">Asimetris</span>
+            </div>
+            <div class="mt-3">
+                <button class="btn btn-warning w-100">
+                    <i class="fas fa-arrow-right me-2"></i>
+                    Gunakan Sekarang
+                </button>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- Quick Access Section -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card fade-in-up" style="animation-delay: 0.4s">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-bolt me-2"></i>
+                    Akses Cepat
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <a href="{{ url_for('text_encryption') }}" class="btn btn-outline-primary w-100 h-100 py-3">
+                            <i class="fas fa-lock fa-2x mb-2"></i>
+                            <h6>Enkripsi Teks</h6>
+                            <small class="text-muted">Enkripsi pesan cepat</small>
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{{ url_for('image_steganography') }}" class="btn btn-outline-success w-100 h-100 py-3">
+                            <i class="fas fa-image fa-2x mb-2"></i>
+                            <h6>Steganografi</h6>
+                            <small class="text-muted">Sembunyikan pesan</small>
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{{ url_for('file_encryption') }}" class="btn btn-outline-danger w-100 h-100 py-3">
+                            <i class="fas fa-file fa-2x mb-2"></i>
+                            <h6>Enkripsi File</h6>
+                            <small class="text-muted">Proteksi dokumen</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rest of the dashboard content remains the same -->
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="card fade-in-up" style="animation-delay: 0.5s">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-history me-2"></i>
+                    Riwayat Aktivitas Terbaru
+                </h5>
+                <span class="badge bg-primary">{{ recent_activities|length }} Aktivitas</span>
+            </div>
+            <div class="card-body">
+                {% if recent_activities %}
+                    <div class="list-group list-group-flush">
+                        {% for activity in recent_activities %}
+                        <div class="list-group-item px-0 py-3 history-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-2 text-primary">{{ activity.type }}</h6>
+                                    <p class="mb-2 text-muted small">{{ activity.description }}</p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>
+                                        {{ activity.timestamp }}
+                                    </small>
+                                </div>
+                                <span class="badge {% if 'Super' in activity.algorithm %}bg-primary{% elif 'RSA' in activity.algorithm %}bg-danger{% else %}bg-warning{% endif %} ms-2">
+                                    {{ activity.algorithm }}
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Belum ada riwayat aktivitas</h5>
+                        <p class="text-muted">Mulai gunakan fitur enkripsi untuk melihat riwayat di sini</p>
+                        <a href="{{ url_for('text_encryption') }}" class="btn btn-primary mt-2">
+                            <i class="fas fa-lock me-2"></i>
+                            Mulai Enkripsi
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-4">
+        <div class="card fade-in-up" style="animation-delay: 0.6s">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-lightbulb me-2"></i>
+                    Tips Keamanan
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info mb-3">
+                    <i class="fas fa-key me-2"></i>
+                    <strong>Simpan Kunci dengan Aman</strong>
+                    <p class="small mb-0 mt-1">Selalu simpan kunci enkripsi di tempat yang aman dan terpisah dari data terenkripsi.</p>
+                </div>
+                
+                <div class="alert alert-warning mb-3">
+                    <i class="fas fa-shield-alt me-2"></i>
+                    <strong>Gunakan Password Kuat</strong>
+                    <p class="small mb-0 mt-1">Gunakan kombinasi huruf, angka, dan simbol untuk password yang lebih aman.</p>
+                </div>
+                
+                <div class="alert alert-success">
+                    <i class="fas fa-sync-alt me-2"></i>
+                    <strong>Update secara Berkala</strong>
+                    <p class="small mb-0 mt-1">Gunakan algoritma terbaru untuk menjaga keamanan data Anda.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

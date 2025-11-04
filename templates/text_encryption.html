@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Enkripsi Teks - Crypto App{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="h3 mb-4 text-white">
+            <i class="fas fa-lock me-2"></i>
+            Enkripsi & Dekripsi Teks
+        </h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="encryption-form">
+            <form method="POST" action="{{ url_for('text_encryption') }}" id="textEncryptForm">
+                <div class="mb-4">
+                    <label for="text" class="form-label fw-bold">Teks</label>
+                    <textarea class="form-control" id="text" name="text" rows="5" 
+                              placeholder="Masukkan teks yang ingin dienkripsi atau didekripsi" 
+                              data-max-length="1000" required>{{ request.form.text if request.form.text }}</textarea>
+                    <div class="form-text text-end mt-1"><span id="textCounter">0</span>/1000 karakter</div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="caesar_shift" class="form-label fw-bold">Caesar Shift</label>
+                            <input type="number" class="form-control" id="caesar_shift" name="caesar_shift" 
+                                   value="{{ request.form.caesar_shift or '3' }}" min="1" max="25" required>
+                            <div class="form-text">Nilai pergeseran untuk Caesar Cipher (1-25)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="vigenere_key" class="form-label fw-bold">Vigenere Key</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="vigenere_key" name="vigenere_key" 
+                                       value="{{ request.form.vigenere_key or 'KEY' }}" required>
+                                <button type="button" class="btn btn-outline-secondary" id="generateKeyBtn">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                            <div class="form-text">Kunci untuk Vigenere Cipher</div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if result and result.type == 'encrypted' %}
+                <div class="mb-4">
+                    <label for="aes_key" class="form-label fw-bold">AES Key</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control key-display" id="aes_key" 
+                               value="{{ result.aes_key }}" readonly>
+                        <button type="button" class="btn btn-outline-primary copy-btn" data-copy-target="aes_key">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                    <div class="form-text text-danger mt-2">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Simpan kunci ini dengan aman! Anda membutuhkannya untuk dekripsi.
+                    </div>
+                </div>
+                {% elif request.method == 'POST' and request.form.get('action') == 'decrypt' %}
+                <div class="mb-4">
+                    <label for="aes_key_input" class="form-label fw-bold">AES Key</label>
+                    <input type="text" class="form-control" id="aes_key_input" name="aes_key" 
+                           value="{{ request.form.aes_key }}" required>
+                    <div class="form-text">Masukkan AES key yang digunakan untuk enkripsi</div>
+                </div>
+                {% endif %}
+
+                <div class="action-buttons">
+                    <button type="submit" name="action" value="encrypt" class="btn btn-primary">
+                        <i class="fas fa-lock me-2"></i> Enkripsi
+                    </button>
+                    <button type="submit" name="action" value="decrypt" class="btn btn-success">
+                        <i class="fas fa-lock-open me-2"></i> Dekripsi
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        {% if result %}
+        <div class="card mt-4 fade-in-up">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Hasil {{ result.type == 'encrypted' and 'Enkripsi' or 'Dekripsi' }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Teks Asli</label>
+                    <div class="key-display">{{ result.original }}</div>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Hasil {{ result.type == 'encrypted' and 'Enkripsi' or 'Dekripsi' }}</label>
+                    <div class="key-display" id="resultText">{{ result.result }}</div>
+                </div>
+                <button type="button" class="btn btn-outline-primary w-100 copy-btn" data-copy-target="resultText">
+                    <i class="fas fa-copy me-2"></i> Salin Hasil
+                </button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card fade-in-up" style="animation-delay: 0.2s">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Informasi Algoritma
+                </h5>
+            </div>
+            <div class="card-body">
+                <h6>Super Enkripsi</h6>
+                <p class="small">Kombinasi 3 algoritma:</p>
+                <ul class="small">
+                    <li><strong>Caesar Cipher:</strong> Substitusi sederhana</li>
+                    <li><strong>Vigenere Cipher:</strong> Substitusi polyalphabetic</li>
+                    <li><strong>AES-256:</strong> Enkripsi modern yang aman</li>
+                </ul>
+                <div class="alert alert-info small mt-3">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Proses enkripsi: Caesar → Vigenere → AES
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

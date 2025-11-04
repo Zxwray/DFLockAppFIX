@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block title %}Enkripsi File - Crypto App{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="h3 mb-4 text-white">
+            <i class="fas fa-file-shield me-2"></i>
+            Enkripsi & Dekripsi File
+        </h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="encryption-form">
+            <!-- Form untuk Enkripsi -->
+            <form method="POST" action="{{ url_for('file_encryption') }}" enctype="multipart/form-data" id="encryptForm">
+                <input type="hidden" name="action" value="encrypt">
+                
+                <!-- Enkripsi File Section -->
+                <div class="form-section">
+                    <h5 class="text-primary">
+                        <i class="fas fa-lock me-2"></i>
+                        Enkripsi File
+                    </h5>
+                    
+                    <div class="file-upload-container">
+                        <label class="form-label fw-bold mb-3">Pilih File</label>
+                        <div class="file-upload-area">
+                            <input type="file" class="file-input" name="encrypt_file" 
+                            accept=".txt,.pdf,.docx,.doc" id="encryptFileInput">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <div class="file-label">Klik atau drag & drop file di sini</div>
+                            <div class="file-subtext">Format: TXT, PDF, DOCX (Maks. 53 bytes untuk RSA)</div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-lock me-2"></i> Enkripsi File
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <hr class="my-5">
+
+            <!-- Form untuk Dekripsi -->
+            <form method="POST" action="{{ url_for('file_encryption') }}" enctype="multipart/form-data" id="decryptForm">
+                <input type="hidden" name="action" value="decrypt">
+                
+                <!-- Dekripsi File Section -->
+                <div class="form-section">
+                    <h5 class="text-success">
+                        <i class="fas fa-lock-open me-2"></i>
+                        Dekripsi File
+                    </h5>
+                    
+                    <!-- File Terenkripsi -->
+                    <div class="file-upload-container mb-4">
+                        <label class="form-label fw-bold mb-3">Pilih File Terenkripsi</label>
+                        <div class="file-upload-area">
+                            <input type="file" class="file-input" name="decrypt_file" 
+                            accept=".txt,.pdf,.docx,.doc" id="decryptFileInput">
+                            <i class="fas fa-file-import"></i>
+                            <div class="file-label">Klik atau drag & drop file terenkripsi</div>
+                            <div class="file-subtext">Format: TXT, PDF, DOCX</div>
+                        </div>
+                    </div>
+
+                    <!-- Kunci Private -->
+                    <div class="file-upload-container">
+                        <label class="form-label fw-bold mb-3">Kunci Private</label>
+                        <div class="file-upload-area">
+                            <input type="file" class="file-input" name="key_file" 
+                                   accept=".pem,.key" id="keyFileInput">
+                            <i class="fas fa-key"></i>
+                            <div class="file-label">Klik atau drag & drop kunci private</div>
+                            <div class="file-subtext">Format: PEM</div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-lock-open me-2"></i> Dekripsi File
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Results Section -->
+        {% if result %}
+        <div class="card mt-4 fade-in-up">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Hasil {{ result.type == 'encrypted' and 'Enkripsi' or 'Dekripsi' }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">File Input</label>
+                        <div class="key-display small">{{ result.input_file }}</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">File Output</label>
+                        <div class="key-display small">{{ result.output_file }}</div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <a href="{{ url_for('download_file', folder='files', filename=result.output_file) }}" 
+                       class="btn btn-success download-btn">
+                        <i class="fas fa-download me-2"></i> 
+                        Download {{ result.type == 'encrypted' and 'File Terenkripsi' or 'File Terdekripsi' }}
+                    </a>
+
+                    {% if result.private_key_file %}
+                    <a href="{{ url_for('download_file', folder='files', filename=result.private_key_file) }}" 
+                       class="btn btn-outline-danger">
+                        <i class="fas fa-key me-2"></i> Download Private Key
+                    </a>
+                    {% endif %}
+                </div>
+
+                {% if result.private_key_file %}
+                <div class="alert alert-danger mt-3">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Simpan kunci private dengan aman!</strong> Tanpa kunci private, file tidak bisa didekripsi.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Information Card -->
+        <div class="card fade-in-up">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Informasi Algoritma RSA
+                </h5>
+            </div>
+            <div class="card-body">
+                <h6>RSA Encryption</h6>
+                <p class="small mb-3">Algoritma asimetris dengan key pair:</p>
+                <ul class="small mb-3">
+                    <li><strong class="text-primary">Public Key:</strong> Untuk enkripsi</li>
+                    <li><strong class="text-danger">Private Key:</strong> Untuk dekripsi</li>
+                </ul>
+                <div class="alert alert-warning small">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Batasan Ukuran:</strong> RSA 512-bit hanya bisa mengenkripsi data maksimal 53 bytes. Cocok untuk kunci atau teks pendek.
+                </div>
+                <div class="alert alert-danger small mt-3">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <strong>Simpan kunci private dengan aman!</strong> Tanpa kunci private, file tidak bisa didekripsi.
+                </div>
+                <h6 class="mt-4">Spesifikasi Teknis</h6>
+                <ul class="small mb-0">
+                    <li><strong>Key size:</strong> 512 bit</li>
+                    <li><strong>Max Data Size:</strong> 53 bytes</li>
+                    <li><strong>Jenis:</strong> Asymmetric encryption</li>
+                    <li><strong>Kegunaan:</strong> Cocok untuk kunci, password, teks pendek</li>
+                </ul>
+            </div>
+        </div>
+        <!-- Tips Card -->
+        <div class="card mt-4 fade-in-up">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-tips me-2"></i>
+                    Tips Penggunaan
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info small mb-3">
+                    <i class="fas fa-lightbulb me-2"></i>
+                    <strong>Untuk Teks Pendek</strong><br>
+                    RSA cocok untuk password, kunci, atau teks pendek (max 53 karakter)
+                </div>
+                
+                <div class="alert alert-warning small mb-3">
+                    <i class="fas fa-shield-alt me-2"></i>
+                    <strong>File Besar</strong><br>
+                    Untuk file besar, gunakan enkripsi hybrid (AES + RSA)
+                </div>
+                
+                <div class="alert alert-success small">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <strong>Format Didukung</strong><br>
+                    TXT, PDF, DOCX - untuk konten kecil
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions Card -->
+        <div class="card mt-4 fade-in-up">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-bolt me-2"></i>
+                    Akses Cepat
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('text_encryption') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-lock me-2"></i>
+                        Enkripsi Teks
+                    </a>
+                    <a href="{{ url_for('image_steganography') }}" class="btn btn-outline-success btn-sm">
+                        <i class="fas fa-image me-2"></i>
+                        Steganografi
+                    </a>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-info btn-sm">
+                        <i class="fas fa-home me-2"></i>
+                        Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

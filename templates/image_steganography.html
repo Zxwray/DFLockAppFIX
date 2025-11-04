@@ -1,0 +1,175 @@
+<!-- File: templates/image_steganography.html -->
+{% extends "base.html" %}
+
+{% block title %}Steganografi Gambar - Crypto App{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="h3 mb-4 text-white">
+            <i class="fas fa-eye-slash me-2"></i>
+            Steganografi Gambar - COMBINED METHOD
+        </h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="encryption-form">
+            <form method="POST" action="{{ url_for('image_steganography') }}" enctype="multipart/form-data">
+                
+                <!-- Informasi Metode -->
+                <div class="alert alert-info mb-4">
+                    <i class="fas fa-shield-alt me-2"></i>
+                    <strong>COMBINED METHOD AKTIF</strong> - Menggabungkan LSB Random + EOF untuk keamanan maksimal
+                </div>
+
+                <!-- File Upload Section -->
+                <div class="file-upload-container">
+                    <label class="form-label fw-bold mb-3">Pilih Gambar</label>
+                    <div class="file-upload-area">
+                        <input type="file" class="file-input" name="image" accept=".png,.jpg,.jpeg" required>
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <div class="file-label">Klik atau drag & drop gambar di sini</div>
+                        <div class="file-subtext">Format: PNG, JPG, JPEG (Maks. 5MB)</div>
+                    </div>
+                </div>
+
+                <!-- Message Input Section -->
+                <div class="mb-4">
+                    <label for="message" class="form-label fw-bold">Pesan Rahasia</label>
+                    <textarea class="form-control" id="message" name="message" rows="4" 
+                              placeholder="Masukkan pesan yang ingin disembunyikan" 
+                              data-max-length="2000">{{ request.form.message if request.form.message }}</textarea>
+                    <div class="form-text">Maksimal 2000 karakter (dua layer encryption)</div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button type="submit" name="action" value="encode" class="btn btn-primary">
+                        <i class="fas fa-eye-slash me-2"></i> Sembunyikan Pesan
+                    </button>
+                    <button type="submit" name="action" value="decode" class="btn btn-success">
+                        <i class="fas fa-eye me-2"></i> Ekstrak Pesan
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Results Section -->
+        {% if result %}
+        <div class="card mt-4 fade-in-up">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Hasil {{ result.type == 'encoded' and 'Enkripsi' or 'Dekripsi' }}
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if result.type == 'encoded' %}
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Pesan yang Disembunyikan</label>
+                    <div class="key-display">{{ result.message }}</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Metode</label>
+                    <div class="key-display">COMBINED (LSB Random + EOF) - Dual Layer Protection</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">File Hasil</label>
+                    <div class="key-display">{{ result.output_file }}</div>
+                </div>
+                <a href="{{ url_for('download_file', folder='images', filename=result.output_file) }}" 
+                   class="download-btn w-100 text-center">
+                    <i class="fas fa-download me-2"></i> Download Gambar
+                </a>
+                {% else %}
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Pesan yang Ditemukan</label>
+                    <div class="key-display" style="white-space: pre-line;">{{ result.message }}</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Metode Deteksi</label>
+                    <div class="key-display">COMBINED - Dual Layer Extraction</div>
+                </div>
+                <button type="button" class="btn btn-outline-primary w-100 copy-btn" data-copy-target="decodedMessage">
+                    <i class="fas fa-copy me-2"></i> Salin Pesan
+                </button>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Information Card -->
+        <div class="card fade-in-up">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    COMBINED METHOD
+                </h5>
+            </div>
+            <div class="card-body">
+                <h6>Dual Layer Protection</h6>
+                <p class="small mb-3">Menggabungkan 2 teknik steganografi untuk keamanan maksimal:</p>
+                
+                <div class="alert alert-success small mb-3">
+                    <strong>Layer 1: LSB Random</strong><br>
+                    • Pixel modification dengan randomness<br>
+                    • Sulit dideteksi<br>
+                    • Keamanan tinggi
+                </div>
+                
+                <div class="alert alert-info small mb-3">
+                    <strong>Layer 2: EOF (End of File)</strong><br>
+                    • Data tambahan di akhir file<br>
+                    • Kapasitas tinggi<br>
+                    • Redundancy protection
+                </div>
+
+                <h6>Keunggulan</h6>
+                <ul class="small mb-0">
+                    <li>✅ Double protection</li>
+                    <li>✅ Redundancy backup</li>
+                    <li>✅ Maximum security</li>
+                    <li>✅ High capacity</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<!-- Tambahkan di template image_steganography.html -->
+<script>
+// Fungsi untuk menampilkan loading saat proses
+function setupLoadingIndicators() {
+    const forms = document.querySelectorAll('form');
+    
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const submitButtons = this.querySelectorAll('button[type="submit"]');
+            const originalTexts = [];
+            
+            submitButtons.forEach((button, index) => {
+                originalTexts[index] = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Memproses...';
+                button.disabled = true;
+            });
+            
+            // Auto reset setelah 30 detik (safety net)
+            setTimeout(() => {
+                submitButtons.forEach((button, index) => {
+                    button.innerHTML = originalTexts[index];
+                    button.disabled = false;
+                });
+            }, 30000);
+        });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    setupLoadingIndicators();
+});
+</script>
